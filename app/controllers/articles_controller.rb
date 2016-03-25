@@ -1,6 +1,8 @@
 class ArticlesController < ApplicationController
   unloadable
 
+  accept_api_auth :index
+
   helper :attachments
   include AttachmentsHelper
   helper :knowledgebase
@@ -31,6 +33,12 @@ class ArticlesController < ApplicationController
     @articles_toprated = @project.articles.includes(:ratings).limit(summary_limit).sort_by(&:rated_count).reverse
 
     @tags = @project.articles.tag_counts
+
+    respond_to do |format|
+        format.html
+        format.json { render :json => @project.articles.order("created_at DESC") }
+        format.api { render :json => @project.articles.order("created_at DESC") }
+     end
   end
 
   def new
@@ -78,7 +86,9 @@ class ArticlesController < ApplicationController
     respond_to do |format|
       format.html { render :template => 'articles/show', :layout => !request.xhr? }
       format.atom { render_feed(@article, :title => "#{l(:label_article)}: #{@article.title}") }
-	  format.pdf  { send_data(article_to_pdf(@article, @project), :type => 'application/pdf', :filename => 'export.pdf') }
+	    format.pdf  { send_data(article_to_pdf(@article, @project), :type => 'application/pdf', :filename => 'export.pdf') }
+      format.json { render :json => @article }
+      # format.api  { render :json => @project.articles.order("created_at DESC") }
     end
   end
 
