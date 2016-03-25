@@ -69,8 +69,13 @@ class ArticlesController < ApplicationController
     @article.version_comments = params[:article][:version_comments]
     if @article.save
       attachments = attach(@article, params[:attachments])
-      flash[:notice] = l(:label_article_created, :title => @article.title)
-      redirect_to({ :action => 'show', :id => @article.id, :project_id => @project })
+      respond_to do |format|
+        format.html {
+          flash[:notice] = l(:label_article_created, :title => @article.title)
+          redirect_to({ :action => 'show', :id => @article.id, :project_id => @project })
+        }
+        format.json { render :json => { :article => @article, :url => article_url(@article)}}
+      end
       KbMailer.article_create(@article).deliver
     else
       render(:action => 'new')
