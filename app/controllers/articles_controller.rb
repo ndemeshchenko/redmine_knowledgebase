@@ -1,7 +1,7 @@
 class ArticlesController < ApplicationController
   unloadable
 
-  accept_api_auth :index
+  accept_api_auth :index, :show, :create
 
   helper :attachments
   include AttachmentsHelper
